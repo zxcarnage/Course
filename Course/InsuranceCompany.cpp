@@ -124,11 +124,95 @@ void Insurance::Edit()
 	Prepare(_clientName);
 }
 
-Insurance::~Insurance(){}
+Insurance::~Insurance() {}
 
 int Insurance::GetYear()
 {
 	int year;
 	year = (_signDate[6] - 48) * 1000 + (_signDate[7] - 48) * 100 + (_signDate[8] - 48) * 10 + (_signDate[9] - 48);
 	return year;
+}
+
+char* Insurance::GetDate()
+{
+	return _signDate;
+}
+
+InsuranceObject* Insurance::GetInsureObjects()
+{
+	return _objectsToInsure;
+}
+
+void Insurance::CreateReport()
+{
+	int year;
+	int totalSummary = 0;
+	string name;
+	Insurance insurance;
+	ifstream fin;
+	ofstream fout;
+	vector<Insurance> insurances;
+	vector<InsuranceObject> insuranceObjects;
+	map<string, unsigned int> customers;
+	map<unsigned int, unsigned int> yearSummary;
+	map<InsuranceObject, unsigned int> insureObjects;
+	fin.open("insuranceDataBase.txt", ifstream::binary);
+	while (fin.read((char*)&insurance, sizeof(Insurance))) 
+	{ 
+		insurances.push_back(insurance);
+	}
+	ofstream("Report.txt");
+	fout.open("Report.txt", ofstream :: app);
+	for (int i = 0; i < insurances.size(); i++)
+	{
+		insurance = insurances.at(i);
+		name = insurance.GetName();
+		year = insurance.GetYear();
+		totalSummary += insurance.GetSummary();
+		int j = 0;
+		while (insurance.GetInsureObjects()[j] != InsuranceObject::Nothing && j < 10)
+		{
+			insuranceObjects.push_back(insurance.GetInsureObjects()[j]);
+			j++;
+		}
+
+		if (customers.count(name))
+			customers.find(name)->second++;
+		else
+			customers.insert({ name, 1 });
+		if (yearSummary.count(year))
+			yearSummary.find(year)->second += insurance.GetSummary();
+		else
+			yearSummary.insert({ year,insurance.GetSummary() });
+	}
+	for (int i = 0; i < insuranceObjects.size(); i++)
+	{
+		InsuranceObject currentObject = insuranceObjects.at(i);
+		if (insureObjects.count(currentObject))
+			insureObjects.find(currentObject)->second++;
+		else
+			insureObjects.insert({ currentObject, 1 });
+	}
+	fout << "======================== REPORT ===========================\n";
+	fout << "======== ALL CUSTOMERS AND THEIRS ORDER COUNTS=============\n";
+	for (auto keyPair : customers)
+	{
+		fout << keyPair.first << ": " << keyPair.second << "\n";
+	}
+	fout << "========== ALL YEARS AND THEIRS TOTAL SUMMARY =============\n";
+	for (auto keyPair : yearSummary)
+	{
+		fout << keyPair.first << ": " << keyPair.second << "\n";
+	}
+	fout << "============== MOST OFTEN INSURE OBJECTS  =================\n";
+	for (auto keyPair : insureObjects)
+	{
+		fout << EnumToString(keyPair.first) << ": " << keyPair.second << "\n";
+	}
+	fout << "==================== TOTAL SUMMARY ========================\n";
+	fout << "====================" << setw(10) << totalSummary << setw(30) << "========================\n";
+	fout << "Report created on period from " << yearSummary.begin()->first << " - " << yearSummary.rbegin()->first;
+	cout << "SUCCESS! CHECK \"Report.txt\" file" << endl;
+	Sleep(3000);
+	system("cls");
 }

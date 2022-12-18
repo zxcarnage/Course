@@ -1,0 +1,14 @@
+======================== REPORT ===========================
+======== ALL CUSTOMERS AND THEIRS ORDER COUNTS=============
+admin: 1
+forView: 1
+========== ALL YEARS AND THEIRS TOTAL SUMMARY =============
+2000: 2500
+2010: 6000
+============== MOST OFTEN INSURE OBJECTS  =================
+Car: 1
+House: 1
+Life: 14
+==================== TOTAL SUMMARY ========================
+====================      8500     ========================
+Report created on period from 2000 - 2010

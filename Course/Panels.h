@@ -18,6 +18,7 @@ namespace userPanel
 	{
 		Client _client;
 		void CallUserMethod(int answer);
+		void ShowSorted();
 	public:
 		virtual void ShowPanel() override;
 		void Order();

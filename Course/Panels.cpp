@@ -6,6 +6,11 @@ void UserPanel::Order()
 	_client.OrderInsurance();
 }
 
+void UserPanel::ShowSorted()
+{
+	_client.ShowSortedInsurances();
+}
+
 void Panel::ShowInsurances()
 {
 	Insurance insurance;
@@ -37,6 +42,9 @@ void UserPanel::CallUserMethod(int answer)
 	case 3:
 		ShowPrice();
 		break;
+	case 4:
+		ShowSorted();
+		break;
 	}
 }
 
@@ -52,10 +60,11 @@ void UserPanel::ShowPanel()
 		cout << "1.Order an insurance" << endl;
 		cout << "2.Show all insurances" << endl;
 		cout << "3.Show price-list" << endl;
-		cout << "4.Exit button" << endl;
+		cout << "4.Show sorted insurances" << endl;
+		cout << "5.Exit button" << endl;
 		cout << "==================================================" << endl;
-		Input(&answer, " answer", InputType::Answer, 4);
-		if (going = (int)answer != 4)
+		Input(&answer, " answer", InputType::Answer, 5);
+		if (going = (int)answer != 5)
 			CallUserMethod((int)answer);
 	}
 }
@@ -105,7 +114,33 @@ void FilterByYear()
 	}
 	while (fin.read((char*)&insurance, sizeof(Insurance)))
 	{
-		if (insurance.GetYear() > (int)floorYear && insurance.GetSummary() < (int)ceilYear)
+		if (insurance.GetYear() >= (int)floorYear && insurance.GetYear() <= (int)ceilYear)
+		{
+			insurance.Show();
+		}
+	}
+}
+
+void FilterByLetter()
+{
+	char floorLetter;
+	char ceilLetter;
+	bool going = true;
+	Insurance insurance;
+	ifstream fin;
+	fin.open("insuranceDataBase.txt", ifstream::binary);
+	while (going)
+	{
+		SingleCharInput(&floorLetter, " a floor letter");
+		SingleCharInput(&ceilLetter, " a ceil letter");
+		if ((ceilLetter < floorLetter) || (floorLetter < 'A' || ceilLetter > 'z') || (floorLetter > 'Z' && floorLetter < 'a') || (ceilLetter > 'Z' && ceilLetter < 'a'))
+			cout << "Enter first value lower then second or correct letter" << endl;
+		else
+			going = false;
+	}
+	while (fin.read((char*)&insurance, sizeof(Insurance)))
+	{
+		if (insurance.GetName()[0] >= floorLetter && insurance.GetName()[0] <= ceilLetter)
 		{
 			insurance.Show();
 		}
@@ -122,6 +157,9 @@ void CallCurrentFilter(int answer)
 	case 2:
 		FilterByYear();
 		break;
+	case 3:
+		FilterByLetter();
+		break;
 	}
 }
 
@@ -134,10 +172,11 @@ void FilterBy()
 		cout << "================ Choose an option ================" << endl;
 		cout << "1.Filter by price" << endl;
 		cout << "2.Filter by year of filling" << endl;
-		cout << "3.Exit button" << endl;
+		cout << "3.Filter by first letter of name" << endl;
+		cout << "4.Exit button" << endl;
 		cout << "==================================================" << endl;
-		Input(&answer, " answer", InputType::Answer, 3);
-		if (going = (int)answer != 3)
+		Input(&answer, " answer", InputType::Answer, 4);
+		if (going = (int)answer != 4)
 			CallCurrentFilter((int)answer);
 	}
 }
@@ -172,6 +211,10 @@ void AdminPanel::InsuranceWork(int answer)
 		break;
 	case 9:
 		FilterBy();
+		break;
+	case 10:
+		Insurance::CreateReport();
+		break;
 	}
 }
 
@@ -208,8 +251,9 @@ void AdminPanel::ShowInsurancePanel()
 	cout << "7.Show all insurances" << endl;
 	cout << "8.Add an insurance with transactions" << endl;
 	cout << "9.Show filtred insurances" << endl;
+	cout << "10.Create report" << endl;
 	cout << "==================================================" << endl;
-	Input(&answer, " answer", InputType::Answer, 9);
+	Input(&answer, " answer", InputType::Answer, 10);
 	InsuranceWork((int)answer);
 	
 }

@@ -80,23 +80,29 @@ string User::GetStringedRole()
 	return "Error";
 }
 
+istream& operator>>(istream& stream, User& user) {
+	stream >> user._login >> user._password;
+	return stream;
+}
+
+ostream& operator<<(ostream& stream, User& user) {
+	stream << user._login << "\'-" << user._password << '\"';
+	return stream;
+}
 //======================================================
 //CLIENT
 
 Client::Client() : User()
 {
-	_balance = 0;
 }
 
 Client::Client(char login[], char password[], Role expectedRole, char salt[], Access access) : User(login, password, expectedRole,salt,access)
 {
 	_access = access;
-	_balance = 0;
 }
 
 Client::Client(User& user) : User(user)
 {
-	_balance = 0;
 }
 
 void Client::OrderInsurance()
@@ -113,30 +119,40 @@ void Client::OrderInsurance()
 
 }
 
-bool NamePredicate(Insurance first, Insurance second)
+bool NameComaparator(Insurance first, Insurance second)
 {
 	return first.GetName() < second.GetName();
 }
 
-bool SumPredicate(Insurance first, Insurance second)
+bool SumComparator(Insurance first, Insurance second)
 {
 	return first.GetSummary() < second.GetSummary();
 }
 
+bool YearComparator(Insurance first, Insurance second)
+{
+	return first.GetYear() < second.GetYear();
+}
+
 void SortName(vector<Insurance>& insurances)
 {
-	sort(insurances.begin(), insurances.end(), NamePredicate);
+	sort(insurances.begin(), insurances.end(), NameComaparator);
 }
 
 void SortSum(vector<Insurance>& insurances)
 {
-	sort(insurances.begin(), insurances.end(), SumPredicate);
+	sort(insurances.begin(), insurances.end(), SumComparator);
+}
+
+void SortYear(vector<Insurance>& insurances)
+{
+	sort(insurances.begin(), insurances.end(), YearComparator);
 }
 
 void Client::ShowSortedInsurances()
 {
 	float answer;
-	Input(&answer, "\n 1.If you want to sort by name of client\n2.If you want to sort by summary", InputType::Answer, 2);
+	Input(&answer, "\n1.If you want to sort by name of client\n2.If you want to sort by summary\n3.If you want to sort by year", InputType::Answer, 3);
 	ifstream fin;
 	ofstream fout;
 	Insurance insurance;
@@ -155,6 +171,8 @@ void Client::ShowSortedInsurances()
 	case 2:
 		SortSum(insurances);
 		break;
+	case 3:
+		SortYear(insurances);
 	}
 	for (unsigned int i = 0; i < insurances.size(); i++)
 	{
@@ -364,10 +382,21 @@ void EditSum(vector<Insurance>& insurances)
 	}
 }
 
+void EditDate(vector<Insurance>& insurances)
+{
+	char date[12];
+	DateInput(date, " a date");
+	for (unsigned int i = 0; i < insurances.size(); i++)
+	{
+		if (strcmp(date, insurances.at(i).GetDate()) == 0)
+			insurances.at(i).Edit();
+	}
+}
+
 void Admin::EditInsurance()
 {
 	float answer;
-	Input(&answer, "\n1.If you want to edit by name of client\n2.If you want to edit by summary", InputType::Answer, 2);
+	Input(&answer, "\n1.If you want to edit by name of client\n2.If you want to edit by summary\n3.If you want to edit by date", InputType::Answer, 3);
 	ifstream fin;
 	ofstream fout;
 	Insurance insurance;
@@ -385,6 +414,9 @@ void Admin::EditInsurance()
 		break;
 	case 2:
 		EditSum(insurances);
+		break;
+	case 3:
+		EditDate(insurances);
 		break;
 	}
 	ofstream("insuranceDataBase.txt");
@@ -448,10 +480,38 @@ void DeleteWithName()
 	fout.close();
 }
 
+void DeleteWithYear()
+{
+	string year;
+	int intedYear;
+	StringInput(&year, " a year");
+	intedYear = std::stoi(year);
+	ofstream fout;
+	ifstream fin;
+	Insurance insurance;
+	vector<Insurance> insurances;
+	fin.open("insuranceDataBase.txt", ifstream::app | ifstream::binary);
+	while (fin.read((char*)&insurance, sizeof(Insurance)))
+	{
+		if (insurance.GetYear() != intedYear)
+		{
+			insurances.push_back(insurance);
+		}
+	}
+	ofstream("insuranceDataBase.txt");
+	fout.open("insuranceDataBase.txt", ofstream::app | ofstream::binary);
+	for (unsigned int i = 0; i < insurances.size(); i++)
+	{
+		fout.write((char*)&insurances.at(i), sizeof(Insurance));
+	}
+	fin.close();
+	fout.close();
+}
+
 void Admin::DeleteInsurance()
 {
 	float answer;
-	Input(&answer, "\n1.If you want to delete with summary\n2.If you want to delete all insurances witch name of client", InputType::Answer, 2);
+	Input(&answer, "\n1.If you want to delete with summary\n2.If you want to delete all insurances witch name of client\n3.If you want to delete with year of insurance", InputType::Answer, 3);
 	switch ((int)answer)
 	{
 	case 1:
@@ -459,6 +519,9 @@ void Admin::DeleteInsurance()
 		break;
 	case 2:
 		DeleteWithName();
+		break;
+	case 3:
+		DeleteWithYear();
 		break;
 	}
 }
@@ -501,7 +564,6 @@ void Admin::ReviewInsurances()
 void SearchName()
 {
 	ifstream fin;
-	TablePrinter tp(&cout);
 	Insurance insurance;
 	char name[50];
 	memset(name, 0, '\n');
@@ -518,11 +580,10 @@ void SearchName()
 void SearchSum()
 {
 	ifstream fin;
-	TablePrinter tp(&cout);
 	Insurance insurance;
 	float summary;
 	fin.open("insuranceDataBase.txt", ifstream::binary);
-	Input(&summary, " a summary", InputType::Answer);
+	Input(&summary, " a summary", InputType::Number);
 	while (fin.read((char*)&insurance, sizeof(Insurance)))
 	{
 		if ((int)summary == insurance.GetSummary())
@@ -531,10 +592,25 @@ void SearchSum()
 	fin.close();
 }
 
+void SearchByYear()
+{
+	char date[12];
+	DateInput(date, " a date");
+	ifstream fin;
+	Insurance insurance;
+	fin.open("insuranceDataBase.txt", ifstream::binary);
+	while (fin.read((char*)&insurance, sizeof(Insurance)))
+	{
+		if (strcmp(date,insurance.GetDate()))
+			insurance.Show();
+	}
+	fin.close();
+}
+
 void Admin::SearchInsurance()
 {
 	float answer;
-	Input(&answer, "\n1.If you want to search by name of client\n2.If you want to search by summary", InputType::Answer, 2);
+	Input(&answer, "\n1.If you want to search by name of client\n2.If you want to search by summary\n3.If you want to search by date of insurance", InputType::Answer, 3);
 	switch ((int)answer)
 	{
 	case 1:
@@ -543,13 +619,16 @@ void Admin::SearchInsurance()
 	case 2:
 		SearchSum();
 		break;
+	case 3:
+		SearchByYear();
+		break;
 	}
 }
 
 void Admin::SortInsurances()
 {
 	float answer;
-	Input(&answer, "\n 1.If you want to sort by name of client\n2.If you want to sort by summary", InputType::Answer, 2);
+	Input(&answer, "\n1.If you want to sort by name of client\n2.If you want to sort by summary\n3.Sort by year", InputType::Answer, 3);
 	ifstream fin;
 	ofstream fout;
 	Insurance insurance;
@@ -567,6 +646,9 @@ void Admin::SortInsurances()
 		break;
 	case 2:
 		SortSum(insurances);
+		break;
+	case 3:
+		SortYear(insurances);
 		break;
 	}
 	ofstream("insuranceDataBase.txt");

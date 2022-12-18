@@ -46,6 +46,33 @@ void DateCheck(char date[])
 		throw exception("Wrong date view, try DD.MM.YYYY");
 }
 
+void DateCheck(string date)
+{
+	int day;
+	int month;
+	int year;
+	try
+	{
+		day = (date[0] - 48) * 10 + (date[1] - 48);
+		month = (date[3] - 48) * 10 + (date[4] - 48);
+		year = (date[6] - 48) * 1000 + (date[7] - 48) * 100 + (date[8] - 48) * 10 + (date[9] - 48);
+	}
+	catch (...)
+	{
+		throw exception("Wrong date view, try DD.MM.YYYY");
+	}
+	if (date[2] != '.' || date[5] != '.')
+		throw exception("Wrong date view, try DD.MM.YYYY");
+	if (day > 31 || day < 1)
+		throw exception("Wrong date view, try DD.MM.YYYY");
+	if (month < 1 || month > 12)
+		throw exception("Wrong date view, try DD.MM.YYYY");
+	if (year < 1980 || year > 2023)
+		throw exception("Wrong date view, try DD.MM.YYYY");
+	if (date[0] == '\r')
+		throw exception("Wrong date view, try DD.MM.YYYY");
+}
+
 void DateInput(char date[], string dataName)
 {
 	bool isRunning = true;
@@ -61,6 +88,33 @@ void DateInput(char date[], string dataName)
 			cin.getline(tempData, 20);
 			DateCheck(tempData);
 			strcpy(date, tempData);
+			isRunning = false;
+
+		}
+		catch (InputException& iEx)
+		{
+			cout << iEx.what() << endl;
+			cout << "Error data: " << iEx.GetErrorData() << endl;
+		}
+		catch (const exception& ex)
+		{
+			cout << ex.what() << endl;
+		}
+	}
+}
+
+void DateInput(string& date, string dataName)
+{
+	bool isRunning = true;
+	while (isRunning)
+	{
+		try
+		{
+			string tempData;
+			cout << "Enter " << dataName << endl;
+			cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			DateCheck(tempData);
+			date = tempData;
 			isRunning = false;
 
 		}
@@ -117,6 +171,15 @@ void CharInput(char data[], string dataName)
 	cin.get();
 	cin.getline(tempData, 20);
 	strcpy(data,tempData);
+}
+
+void SingleCharInput(char* data, string dataName)
+{
+	char tempData;
+	cout << "Enter " << dataName << endl;
+	cin.get();
+	cin >> tempData;
+	*data = tempData;
 }
 
 void StringInput(string* data, string dataName)

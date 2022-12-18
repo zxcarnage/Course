@@ -37,17 +37,20 @@ class Insurance : public InheritanceClasses::Document
 	InsuranceObject _objectsToInsure[10];
 	char _clientName[50];
 	int _summary;
-	string EnumToString(InsuranceObject objectToInsure);
+	static string EnumToString(InsuranceObject objectToInsure);
 public:
 	Insurance();
 	~Insurance();
+	static void CreateReport();
 	void Prepare(char* clientName) override;
 	void Show() override;
 	void Write() override;
 	void Read();
 	void Edit();
 	int GetYear();
+	char* GetDate();
 	int GetSummary();
 	char* GetName();
+	InsuranceObject* GetInsureObjects();
 };
 

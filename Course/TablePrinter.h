@@ -16,6 +16,7 @@ class TablePrinter
     //void OutputDecimalNumber(T input);
     void PrintHorizontalLine();
 
+    static string _nonSeparator;
     ostream* _outStream;
     vector<string> _columnHeaders;
     vector<int> _columnWidths;
@@ -51,7 +52,7 @@ public:
         else
             *_outStream << std::right;
 
-        // Оставляет 3 пустых места для отрицательного, нуля, положительного
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 3 пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         *_outStream << std::setw(_columnWidths.at(_currentColumn))
             << input;
 

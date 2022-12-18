@@ -14,7 +14,7 @@ using std::memset;
 using std::ifstream;
 using std::ofstream;
 using std::vector;
-//оепевхякемхе днярсою
+//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 enum class Access
 {
 	Allowed,
@@ -22,7 +22,7 @@ enum class Access
 	Denied
 };
 
-//оепевхякемхе пнкеи
+//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 enum class Role
 {
 	Admin,
@@ -49,11 +49,13 @@ public:
 	Access GetAccess();
 	Role GetExpected();
 	string GetStringedRole();
+	friend istream& operator>>(istream& stream, User& user);
+	friend ostream& operator<<(ostream& stream, User& user);
+
 };
 
 class Client : User
 {
-	float _balance;
 public:
 	Client();
 	Client(char login[], char password[], Role expectedRole, char salt[], Access access = Access::OnReview);

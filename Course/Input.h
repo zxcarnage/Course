@@ -32,6 +32,8 @@ public:
 void StringInput(string* data, string dataName);
 void CharInput(char data[], string dataName);
 void DateInput(char date[], string dataName);
+void DateInput(string& date, string dataName);
+void SingleCharInput(char* data, string dataName);
 
 void Input(float* data, string dataName, InputType inputType, int ceilNum = 0);
 
